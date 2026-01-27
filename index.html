@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TiffyAI - Global Agent Editor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta property="og:title" content="TiffyAI Web-Store Builder">
+<meta property="og:description" content="A high-performance, mobile-first WhatsApp POS and Web-Store Builder.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://tiffyai-usd.github.io/Web-Store-App/v6.html">
+<meta property="og:image" content="https://tiffyai-usd.github.io/Web-Store-App/WebApp.gif">
+
+<style>
+/* EXACT CSS PRESERVED FROM YOUR FILE */
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#0a0a0a;color:#e6e6e6}
+:root{--gold:#d4a373;--gold2:#f1b86b;--whatsapp:#25D366;--accent:#00d4ff;}
+#autoSaveStatus { position: fixed; top: 10px; left: 10px; z-index: 5000; font-size: 0.7rem; background: rgba(0,0,0,0.7); padding: 4px 10px; border-radius: 20px; border: 1px solid var(--gold); color: var(--gold); display: none; }
+header{ min-height:80vh; background-size:cover; background-position:center; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; position:relative; }
+/* NARROWING THE GAP: 100.2% Width Fix */
+header#header { width: 100.2%; margin-left: -0.1%; } 
+header::after{ content:''; position:absolute; inset:0; background:rgba(0,0,0,0.6); }
+header *{position:relative;z-index:2}
+.logo{ max-width:180px; border-radius:16px; border:3px solid var(--gold); margin-bottom:1rem; }
+h1{font-family:'Bebas Neue';font-size:4rem;color:var(--gold)}
+.tagline{font-family:'Bebas Neue';color:var(--gold)}
+.cta-container { margin-top: 25px; z-index: 10; }
+.btn-cta { display: inline-block; background: linear-gradient(180deg, var(--gold), var(--gold2)); color: #000; padding: 12px 28px; border-radius: 50px; font-family: 'Bebas Neue'; text-decoration: none; font-size: 1.2rem; box-shadow: 0 4px 15px rgba(212, 163, 115, 0.4); }
+#menu{max-width:1200px;margin:auto;padding:4rem 5%}
+.section-title{ font-family:'Bebas Neue'; font-size:2.4rem; color:var(--gold); margin:2rem 0 1rem; }
+.menu-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1.2rem; }
+.menu-item{ background:#0f0f0f; border-radius:12px; border:1px solid #222; overflow:hidden; position: relative; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.marketing-active .menu-item { border: 1px solid var(--gold); transform: scale(1.02); box-shadow: 0 0 15px rgba(212, 163, 115, 0.2); }
+.badge { position: absolute; top: 15px; left: 15px; padding: 5px 12px; border-radius: 4px; font-family: 'Bebas Neue'; font-size: 0.9rem; z-index: 4; text-transform: uppercase; letter-spacing: 1px; }
+.badge-scarcity { background: #ff0000; color: #fff; animation: pulse-red 1.5s infinite; }
+.badge-hot { background: var(--gold); color: #000; }
+.badge-new { background: #3498db; color: #fff; }
+@keyframes pulse-red { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); } 70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); } }
+.share-btn { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); color: var(--gold); border-radius: 50%; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(5px); z-index: 5; }
+.status-saver-btn { position: absolute; top: 10px; left: 60px; background: #25D366; color: #fff; border: none; padding: 6px 10px; border-radius: 20px; font-size: 0.7rem; font-family: 'Bebas Neue'; cursor: pointer; z-index: 5; }
+.rating-stars { color: #ffcc00 !important; margin-bottom: 8px; font-size: 1rem; text-shadow: 0 0 8px rgba(255, 204, 0, 0.4); letter-spacing: 2px; }
+.cart-controls { display: flex; align-items: center; gap: 8px; margin-top: 15px; width: 100%; }
+.btn-cart { flex: 1; border: none; padding: 10px 5px; border-radius: 8px; font-family: 'Bebas Neue', sans-serif; font-size: 0.8rem; letter-spacing: 1px; cursor: pointer; transition: 0.2s; text-align: center; }
+.btn-add { background: var(--accent); color: #000; }
+.btn-empty { background: rgba(255, 77, 77, 0.1); color: #ff4d4d; border: 1px solid #ff4d4d; }
+.hidden-btn { visibility: hidden; pointer-events: none; }
+.qty-display { font-weight: 900; font-size: 1.2rem; min-width: 35px; text-align: center; color: #fff; }
+.wa-service-btn { width: 100%; margin-top: 15px; cursor: pointer; transition: transform 0.2s; }
+.wa-service-btn:hover { transform: scale(1.05); }
+.menu-item img{ width:100%; height:200px; object-fit:cover; border-bottom:3px solid var(--gold); }
+.card{padding:1rem}
+.menu-item h3{font-family:'Bebas Neue';color:var(--gold)}
+.price{font-family:'Bebas Neue';color:var(--gold2)}
+.sales-log { background: #000; padding: 10px; border-radius: 8px; max-height: 200px; overflow-y: auto; margin: 10px 0; border: 1px solid #333; }
+.log-entry { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #222; font-size: 0.8rem; }
+.bulk-panel { background: rgba(37, 211, 102, 0.1); border: 1px solid var(--whatsapp); padding: 15px; border-radius: 12px; margin-top: 20px; }
+footer{ background:#000; padding:2rem; text-align:center; border-top:1px solid #222; color:#999; }
+#editor { position: relative; border-top: 3px dashed var(--gold); padding: 3rem 5%; background-color: #0a0a0a; background-image: url('silky.jpeg'); background-size: cover; background-position: center; background-attachment: fixed; background-repeat: no-repeat; }
+#editor::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(10, 10, 10, 0.8); z-index: 1; }
+.editor-block { position: relative; z-index: 2; background: rgba(20, 20, 20, 0.9); padding: 1.5rem; border-radius: 14px; margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+label{display:block;margin-top:1rem;color:var(--gold)}
+input,textarea,select{ width:100%; padding:10px; background:#222; border:1px solid #444; color:#fff; border-radius:6px; }
+button{ background:linear-gradient(180deg,var(--gold),var(--gold2)); border:none; padding:10px 18px; border-radius:30px; font-family:'Bebas Neue'; font-size:1.1rem; cursor:pointer; margin-top:10px; position: relative; z-index: 2; }
+.remove{background:#900;color:#fff}
+.cloud-btn { background: #3498db; color: white; margin-bottom: 5px; font-size: 0.8rem; }
+.dashboard-btn { background: #3498db; color: white; width: 100%; margin-bottom: 10px; display: block; text-align: center; }
+#whatsappOrderBtn{ position:fixed; bottom:20px; right:20px; z-index:999; background:linear-gradient(180deg,#25D366,#1ebe5d); color:#071010; padding:14px 22px; border-radius:40px; font-family:'Bebas Neue'; font-size:1.2rem; text-decoration:none; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+.quote-btn { position: fixed; bottom: 80px; right: 20px; z-index: 998; background: #fff; color: #000; padding: 10px 20px; border-radius: 30px; font-family: 'Bebas Neue'; cursor: pointer; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+.modal{ position:fixed; inset:0; background:rgba(0,0,0,0.75); display:flex; align-items:center; justify-content:center; z-index:2000; }
+.hidden{display:none}
+.modal-glass{ width:90%; max-width:420px; background:rgba(20,20,20,0.85); backdrop-filter:blur(14px); border:1px solid rgba(212,163,115,0.4); border-radius:20px; padding:2rem; color:#fff; }
+.pay-btn{ width:100%; padding:14px; border-radius:40px; margin-top:12px; font-family:'Bebas Neue'; font-size:1.1rem; cursor:pointer; border:none; text-align:center; display:block; text-decoration:none; }
+.paypal{ background:#ffc439; color:#111; }
+.confirm{ background:var(--gold); color:#111; }
+.activation{ max-width:600px; margin:3rem auto; padding:2rem; border-top:1px dashed var(--gold); text-align:center; }
+.code-inputs{ display:flex; justify-content:center; gap:10px; margin-bottom:1.5rem; }
+.code-inputs input{ width:42px; height:52px; text-align:center; font-size:1.4rem; border-radius:8px; background:#111; border:1px solid #444; color:#fff; }
+.support-btn { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; z-index: 3000; cursor: pointer; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5)); transition: transform 0.3s ease; }
+</style>
+</head>
+
+<body>
+<div id="autoSaveStatus">Saved Draft</div>
+
+<div id="paymentModal" class="modal hidden">
+  <div class="modal-glass">
+    <h2 style="font-family:'Bebas Neue'; color:var(--gold); text-align:center; font-size:2rem;">Developer License</h2>
+    <p style="text-align:center; margin:1rem 0;">$30 USD (≈ R499)<br>• 100 HTML Export Credits<br>• Professional WhatsApp Builder</p>
+    <button class="pay-btn paypal" onclick="payWithPaypal()">Pay with PayPal</button>
+    <button class="pay-btn confirm" onclick="confirmManualPayment()">I will send an EFT</button>
+    <button class="pay-btn ghost" style="background:none; color:#aaa; width:100%; margin-top:10px; border:none; cursor:pointer;" onclick="closePayment()">Cancel</button>
+  </div>
+</div>
+
+<header id="header">
+  <img id="logo" class="logo">
+  <h1 id="cafeName">BUSINESS-BLISS</h1>
+  <p id="tagline" class="tagline">The World's First Vibe-First Retail OS</p>
+  <div class="cta-container">
+      <a href="#" id="ctaBtn" class="btn-cta">ORDER NOW</a>
+  </div>
+</header>
+
+<section id="menu">
+  <div id="menuRender"></div>
+</section>
+
+<footer>
+  <p id="footerText">© 2026 TiffyAI Retail OS</p>
+</footer>
+
+<div id="editor">
+<h2 style="font-family:'Bebas Neue';color:var(--accent)">🛰️ GLOBAL STAFF PRINTER</h2>
+<div class="editor-block">
+  <label>Agent / Staff Name</label>
+  <input id="staffNameInput" placeholder="Enter Staff Name (e.g. Elaine)" oninput="updateStaffDetails()">
+  
+  <label>Agent Store Handle</label>
+  <input id="staffHandleInput" placeholder="e.g. elaine-agency" oninput="updateStaffDetails()">
+
+  <label>Agent WhatsApp (Money Destination)</label>
+  <input id="editWA" value="+27766314246" oninput="whatsappNumber=this.value.replace(/[^0-9+]/g,'')">
+
+  <button id="cloudSyncBtn" onclick="publishToCloud()" style="background:var(--accent); color:#000; width:100%; margin-top:10px; font-weight:bold;">🚀 PUBLISH STAFF STORE</button>
+</div>
+
+<h2 style="font-family:'Bebas Neue';color:var(--gold)">AGENCY PRODUCT EDITOR</h2>
+<div id="menuEditor"></div>
+<button onclick="addSection()">+ ADD NEW CATEGORY</button>
+</div>
+
+<script>
+/* ================== THE DNA: BUSINESS-BLISS DATA ================== */
+let whatsappNumber = "+27766314246";
+let marketingMode = true; 
+let activeCurrency = 'USD';
+let downloadCredits = 100;
+const orderState = {};
+
+// AGENT TEMPLATE
+let menuSections = [
+  { 
+    title: "Main Attractions", 
+    items: [
+      { name: 'Professional Web Store + Retail OS', price: 70, desc: "Lifetime License. Includes high-speed storefront, built-in POS accounting, and instant quotes.", img: "https://raw.githubusercontent.com/tiffyai-usd/Web-Store-App/main/store-preview.jpg", rating: 5, badge: 'hot', stock: 5 }
+    ] 
+  },
+  {
+    title: "Design & Custom Services",
+    items: [
+       { name: 'Custom Professional Logo Design', price: 25, desc: "High-definition vector logos. Includes 3 revisions and social-ready formats.", img: "https://raw.githubusercontent.com/tiffyai-usd/Web-Store-App/main/logo-design.jpg", rating: 5, badge: 'none' }
+    ]
+  },
+  {
+    title: "Advanced Business Tools",
+    items: [
+       { name: 'Hospitality POS (Lodge/Restaurant)', price: 0, desc: "Negotiable. Specialized inventory and table management with WhatsApp alerts.", img: "https://raw.githubusercontent.com/tiffyai-usd/Web-Store-App/main/pos-lodges.jpg", rating: 5, badge: 'new' }
+    ]
+  },
+  {
+    title: "Global Partnership",
+    items: [
+       { name: '🚀 JOIN THE GLOBAL FLEET (Agent)', price: 0, desc: "Negotiable. Earn $30 per direct sale + $10 passive income from recruits. Join our team!", img: "https://raw.githubusercontent.com/tiffyai-usd/Web-Store-App/main/join-team.jpg", rating: 5, badge: 'scarcity', stock: 10 }
+    ]
+  }
+];
+
+const currencyMap = { USD: { symbol: '$' }, ZAR: { symbol: 'R' } };
+
+/* ================== STAFF PRINTER LOGIC ================== */
+
+function updateStaffDetails() {
+    const name = document.getElementById('staffNameInput').value;
+    const handle = document.getElementById('staffHandleInput').value;
+    if(name) {
+        document.getElementById('cafeName').textContent = `${name.toUpperCase()}'S DIGITAL AGENCY`;
+        document.getElementById('footerText').textContent = `© 2026 ${name} Powered by TiffyAI`;
+    }
+}
+
+async function publishToCloud() {
+    const syncBtn = document.getElementById('cloudSyncBtn');
+    const handle = document.getElementById('staffHandleInput').value.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+    
+    if(!handle) { alert("Please enter a handle first!"); return; }
+
+    syncBtn.textContent = "🚀 PRINTING STORE NODE...";
+
+    const payload = {
+        handle: handle,
+        membershipStatus: "AGENT", // THE MAGIC TAG
+        isAgent: true,
+        isActivated: true, 
+        ownerWhatsapp: whatsappNumber,
+        configData: {
+            businessName: document.getElementById('cafeName').textContent,
+            tagline: document.getElementById('tagline').textContent,
+            footer: document.getElementById('footerText').textContent,
+            logo: document.getElementById('logoURL')?.value || "",
+            banner: "https://raw.githubusercontent.com/tiffyai-usd/Web-Store-App/main/tools2.gif",
+            wa: whatsappNumber,
+            curr: activeCurrency,
+            menu: menuSections,
+            ctaText: "VIEW DASHBOARD",
+            ctaUrl: `https://tiffyai-usd.github.io/Shop-Dashboard/index.html?s=${handle}`
+        }
+    };
+
+    try {
+        const response = await fetch(`https://webstore-api-m8sr.onrender.com/api/publish`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const res = await response.json();
+        if (res.success) {
+            alert(`SUCCESS! Agent Store is live at: https://webstore-api-m8sr.onrender.com/view/${handle}`);
+        }
+    } catch (err) {
+        alert("Server is waking up. Try again in 10 seconds.");
+    } finally {
+        syncBtn.textContent = "🚀 PUBLISH STAFF STORE";
+    }
+}
+
+/* ================== PRESERVED CORE ENGINE ================== */
+function renderMenu(){
+  const menuRender = document.getElementById('menuRender');
+  menuRender.innerHTML = '';
+  const sym = currencyMap[activeCurrency].symbol;
+
+  menuSections.forEach((sec, s) => {
+    const h2 = document.createElement('h2'); h2.className = 'section-title'; h2.textContent = sec.title;
+    const grid = document.createElement('div'); grid.className = 'menu-grid';
+    sec.items.forEach((it, i) => {
+      const key = `${s}-${i}`;
+      const qty = orderState[key] || 0;
+      const stars = "★".repeat(it.rating || 5) + "☆".repeat(5 - (it.rating || 5));
+      let badgeHtml = (marketingMode && it.badge && it.badge !== 'none') ? `<div class="badge badge-${it.badge}">${it.badge === 'scarcity' ? `ONLY ${it.stock || 3} LEFT` : it.badge.replace('-', ' ')}</div>` : '';
+      const card = document.createElement('div'); card.className = 'menu-item';
+      let actionControl = it.price == 0 ? `<img src="WhatsApp.png" class="wa-service-btn" onclick="window.open('https://wa.me/${whatsappNumber}?text=Hi, I am interested in ${it.name}', '_blank')">` : `
+          <div class="cart-controls"><button class="btn-cart btn-empty ${qty > 0 ? '' : 'hidden-btn'}" onclick="changeQty('${key}', -1)">-</button>
+          <span class="qty-display">${qty}</span><button class="btn-cart btn-add" onclick="changeQty('${key}', 1)">+</button></div>`;
+      card.innerHTML = `${badgeHtml}<img src="${it.img || 'https://via.placeholder.com/300'}"><div class="card"><h3>${it.name}</h3><div class="rating-stars">${stars}</div><p style="font-size:0.85rem; color:#aaa;">${it.desc}</p><div class="price">${it.price == 0 ? 'NEGOTIABLE' : sym + it.price}</div>${actionControl}</div>`;
+      grid.appendChild(card);
+    });
+    menuRender.appendChild(h2); menuRender.appendChild(grid);
+  });
+  renderWhatsapp();
+}
+
+function changeQty(key, delta){ orderState[key] = Math.max(0, (orderState[key] || 0) + delta); renderMenu(); }
+
+function renderWhatsapp(){
+  const total = Object.values(orderState).reduce((a,b)=>a+b,0);
+  let btn = document.getElementById('whatsappOrderBtn');
+  if (total === 0){ if(btn) btn.remove(); return; }
+  const sym = currencyMap[activeCurrency].symbol;
+  let msg = `🛍️ NEW AGENCY ORDER\n\n`;
+  menuSections.forEach((sec, s)=>{ sec.items.forEach((it, i)=>{ const q = orderState[`${s}-${i}`] || 0; if(q){ msg += `✅ ${q}x ${it.name}\n`; }}); });
+  if(!btn){ btn = document.createElement('a'); btn.id = 'whatsappOrderBtn'; document.body.appendChild(btn); }
+  btn.href = `https://wa.me/${whatsappNumber}?text=` + encodeURIComponent(msg);
+  btn.textContent = `SEND INQUIRY (${total})`;
+}
+
+function renderEditor(){
+  const me = document.getElementById('menuEditor'); me.innerHTML = '';
+  menuSections.forEach((sec, s)=>{
+    const b = document.createElement('div'); b.className = 'editor-block';
+    b.innerHTML = `<input value="${sec.title}" oninput="menuSections[${s}].title=this.value;renderMenu()">
+      ${sec.items.map((it,i)=>`<div style="border-top:1px solid #333; margin-top:10px;">
+          <label>Product Name</label><input value="${it.name}" oninput="menuSections[${s}].items[${i}].name=this.value;renderMenu()">
+          <label>Price</label><input type="number" value="${it.price}" oninput="menuSections[${s}].items[${i}].price=this.value;renderMenu()">
+          <label>Description</label><textarea oninput="menuSections[${s}].items[${i}].desc=this.value;renderMenu()">${it.desc}</textarea>
+          <button class="remove" onclick="menuSections[${s}].items.splice(${i},1);renderEditor();renderMenu()">Remove</button></div>`).join('')}
+      <button onclick="menuSections[${s}].items.push({name:'New Service',price:0,desc:'',img:'',rating:5,badge:'none'});renderEditor();renderMenu()">+ Add Service</button>`;
+    me.appendChild(b);
+  });
+}
+
+function addSection(){ menuSections.push({ title: "New Category", items: [] }); renderEditor(); renderMenu(); }
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('header').style.backgroundImage = "url('https://raw.githubusercontent.com/tiffyai-usd/Web-Store-App/main/tools2.gif')";
+    renderMenu(); renderEditor();
+});
+</script>
+</body>
+</html>
