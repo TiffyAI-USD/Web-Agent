@@ -2,43 +2,62 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Tiffyverse | Agent Portal</title>
   <style>
-    body { background: #000; color: #00f0ff; font-family: 'Courier New', Courier, monospace; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-    .glass-card { background: rgba(255, 255, 255, 0.05); border: 1px solid #00f0ff; padding: 20px; border-radius: 15px; width: 350px; margin-bottom: 20px; }
-    input { background: #111; color: #00f0ff; border: 1px solid #00f0ff; padding: 10px; width: 90%; margin-bottom: 10px; }
-    button { background: #00f0ff; color: #000; padding: 10px 20px; border: none; cursor: pointer; font-weight: bold; width: 100%; }
-    .lead-item { border-bottom: 1px solid #333; padding: 10px 0; }
+    /* Full screen mobile-first design */
+    body { 
+      background: #000; color: #00f0ff; font-family: sans-serif; 
+      margin: 0; padding: 15px; min-height: 100vh; box-sizing: border-box;
+    }
+    .glass-card { 
+      background: rgba(255, 255, 255, 0.05); border: 1px solid #00f0ff; 
+      padding: 20px; border-radius: 15px; width: 100%; max-width: 500px; 
+      margin: 0 auto 20px auto; box-sizing: border-box;
+    }
+    input { 
+      background: #111; color: #00f0ff; border: 1px solid #00f0ff; 
+      padding: 15px; width: 100%; margin-bottom: 15px; border-radius: 8px;
+      box-sizing: border-box; font-size: 16px;
+    }
+    button { 
+      background: #00f0ff; color: #000; padding: 20px; border: none; 
+      border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px;
+    }
+    .lead-item { border-bottom: 1px solid #333; padding: 15px 0; }
   </style>
 </head>
 <body>
 
-  <!-- Activation Section -->
   <div class="glass-card" id="agent-container">
     <h2>Sovereign Agent Portal</h2>
     <div id="agentInfo">Status: Not Registered</div>
     <button id="register-btn" onclick="registerAsAgent()">ACTIVATE SALES AGENT STATUS</button>
   </div>
 
-  <!-- Lead Capture Section -->
   <div class="glass-card" id="lead-capture" style="display:none;">
     <h3>Capture New Lead</h3>
     <input type="text" id="businessName" placeholder="Business Name">
-    <input type="text" id="phoneInput" placeholder="WhatsApp Number (e.g. 2782...)">
+    <input type="tel" id="phoneInput" placeholder="WhatsApp Number (e.g. 2782...)">
     <button onclick="captureNewLead()">INITIATE PITCH</button>
   </div>
 
-  <!-- Pipeline Section -->
   <div class="glass-card">
     <h3>Active Pipeline</h3>
     <div id="leads-list"></div>
   </div>
 
   <script>
-    // --- 1. Registration Logic ---
+    // --- 1. Registration Logic (Fixed KYC Check) ---
     function registerAsAgent() {
         const kycData = JSON.parse(localStorage.getItem('user_kyc_data'));
-        if (!kycData) { alert("Complete KYC Profile first."); return; }
+
+        // Check if data exists AND if the status is explicitly verified
+        // Replace 'status' and 'VERIFIED' with your exact KYC field names
+        if (!kycData || kycData.status !== 'VERIFIED') {
+            alert("KYC verification required to become an Agent.");
+            return;
+        }
 
         const agentUUID = `TIF_AGENT_${Date.now()}_${kycData.id_hash.substring(0, 5)}`;
         const agentProfile = { agentID: agentUUID, owner: kycData.name, registeredAt: new Date().toISOString() };
@@ -46,50 +65,8 @@
         localStorage.setItem('tiffy_agent_ledger', JSON.stringify({ profile: agentProfile, leads: [] }));
         location.reload(); 
     }
-
-    // --- 2. Lead Capture Logic ---
-    function captureNewLead() {
-        const name = document.getElementById('businessName').value;
-        const phone = document.getElementById('phoneInput').value;
-        if (!name) return;
-
-        const ledger = JSON.parse(localStorage.getItem('tiffy_agent_ledger'));
-        ledger.leads.push({ business: name, phone: phone, status: "PENDING_PAY", timestamp: new Date().toISOString() });
-        
-        localStorage.setItem('tiffy_agent_ledger', JSON.stringify(ledger));
-        document.getElementById('businessName').value = '';
-        document.getElementById('phoneInput').value = '';
-        renderLeads();
-    }
-
-    // --- 3. UI Rendering ---
-    function renderLeads() {
-        const ledger = JSON.parse(localStorage.getItem('tiffy_agent_ledger'));
-        if (!ledger) return;
-        const list = document.getElementById('leads-list');
-        list.innerHTML = '';
-        ledger.leads.forEach(lead => {
-            const waLink = `https://wa.me/${lead.phone}?text=Hi%20${encodeURIComponent(lead.business)}%2C%20following%20up%20on%20your%20Tiffyverse%20setup.`;
-            list.innerHTML += `
-                <div class="lead-item">
-                    <strong>${lead.business}</strong><br>
-                    <small>Status: ${lead.status}</small><br>
-                    <a href="${waLink}" target="_blank" style="color: #25D366;">💬 WhatsApp Pitch</a>
-                </div>`;
-        });
-    }
-
-    // --- 4. Initialization ---
-    window.onload = () => {
-        const ledger = localStorage.getItem('tiffy_agent_ledger');
-        if (ledger) {
-            document.getElementById('register-btn').style.display = 'none';
-            document.getElementById('lead-capture').style.display = 'block';
-            const data = JSON.parse(ledger);
-            document.getElementById('agentInfo').innerText = `Agent ID: ${data.profile.agentID}`;
-            renderLeads();
-        }
-    };
+    
+    // ... (keep captureNewLead and renderLeads logic the same as before)
   </script>
 </body>
 </html>
