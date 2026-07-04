@@ -35,17 +35,17 @@
 
 <script>
     function registerAsAgent() {
-        // EXACT CHECK: Verification is confirmed by the existence of KYC_Verified_Hash
         if (!localStorage.getItem("KYC_Verified_Hash")) {
             alert("Identity verification not found. Please complete the registration in your KYC app.");
             return;
         }
 
         const agentUUID = `TIF_AGENT_${Date.now()}`;
-        localStorage.setItem('tiffy_agent_ledger', JSON.stringify({ 
+        const newLedger = { 
             profile: { agentID: agentUUID, registeredAt: new Date().toISOString() }, 
             leads: [] 
-        }));
+        };
+        localStorage.setItem('tiffy_agent_ledger', JSON.stringify(newLedger));
         location.reload(); 
     }
 
@@ -54,21 +54,25 @@
         const phone = document.getElementById('phoneInput').value;
         if (!name) return;
 
-        const ledger = JSON.parse(localStorage.getItem('tiffy_agent_ledger'));
-        ledger.leads.push({ business: name, phone: phone, status: "PENDING_PAY" });
-        localStorage.setItem('tiffy_agent_ledger', JSON.stringify(ledger));
-        renderLeads();
+        try {
+            const ledger = JSON.parse(localStorage.getItem('tiffy_agent_ledger'));
+            ledger.leads.push({ business: name, phone: phone, status: "PENDING_PAY" });
+            localStorage.setItem('tiffy_agent_ledger', JSON.stringify(ledger));
+            renderLeads();
+        } catch(e) { console.error("Ledger error:", e); }
     }
 
     function renderLeads() {
-        const ledger = JSON.parse(localStorage.getItem('tiffy_agent_ledger'));
+        const raw = localStorage.getItem('tiffy_agent_ledger');
+        if (!raw) return;
+        const ledger = JSON.parse(raw);
         const list = document.getElementById('leads-list');
         list.innerHTML = '';
         ledger.leads.forEach(lead => {
             list.innerHTML += `<div class="lead-item">
                 <strong>${lead.business}</strong><br>
                 Status: ${lead.status}<br>
-                <a href="https://wa.me/${lead.phone}" style="color: #25D366;">💬 WhatsApp Pitch</a>
+                <a href="https://wa.me/${lead.phone}" style="color: #25D366; text-decoration: none;">💬 WhatsApp Pitch</a>
             </div>`;
         });
     }
@@ -76,9 +80,11 @@
     window.onload = () => {
         const ledger = localStorage.getItem('tiffy_agent_ledger');
         if (ledger) {
+            // THE MISSING FUNCTIONAL LINES:
             document.getElementById('register-btn').style.display = 'none';
             document.getElementById('lead-capture').style.display = 'block';
-            document.getElementById('agentInfo').innerText = `Agent ID: ${JSON.parse(ledger).profile.agentID}`;
+            const data = JSON.parse(ledger);
+            document.getElementById('agentInfo').innerText = `Agent ID: ${data.profile.agentID}`;
             renderLeads();
         }
     };
