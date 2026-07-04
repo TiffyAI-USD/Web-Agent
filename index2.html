@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tiffyverse | Agent Portal</title>
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <style>
+    body { background: #000; color: #00f0ff; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+    .glass-card { background: rgba(255,255,255,0.05); border: 1px solid #00f0ff; padding: 20px; border-radius: 15px; width: 350px; text-align: center; }
+    .stat { font-size: 24px; font-weight: bold; margin: 10px 0; }
+  </style>
+</head>
+<body>
+
+  <div class="glass-card">
+    <h2>Sovereign Agent Dashboard</h2>
+    <div id="agentInfo">ID: LOADING...</div>
+    <div class="stat" id="commission">R 0.00</div>
+    <p>Total Commission Earned (50%)</p>
+  </div>
+
+  <script>
+    let agentData = JSON.parse(localStorage.getItem('tiffy_agent_ledger') || '{}');
+    
+    // 1. Initialize Mesh Connection
+    const peer = new Peer(); 
+    peer.on('open', (id) => {
+      document.getElementById('agentInfo').innerText = `Agent ID: ${id}`;
+    });
+
+    // 2. Listen for Mesh Sales Events
+    peer.on('connection', (conn) => {
+      conn.on('data', (data) => {
+        if (data.type === 'SALE_CONFIRMED') {
+          processSale(data);
+        }
+      });
+    });
+
+    function processSale(data) {
+      // Calculate 50% commission
+      const commission = data.amount * 0.5;
+      
+      // Update local storage
+      agentData.ledger.push({
+        timestamp: new Date().toISOString(),
+        amount: data.amount,
+        commissionEarned: commission
+      });
+      agentData.totalCommission += commission;
+      
+      localStorage.setItem('tiffy_agent_ledger', JSON.stringify(agentData));
+      updateUI();
+    }
+
+    function updateUI() {
+      document.getElementById('commission').innerText = `R ${agentData.totalCommission.toFixed(2)}`;
+    }
+
+    updateUI();
+  </script>
+</body>
+</html>
