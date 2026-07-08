@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Tiffyverse | Sovereign Agent</title>
   <style>
-    :root { --gold: #bf953f; --black: #050505; --electric-blue: #00f0ff; --pink: #ff007f; --green: #00ff41; }
+    :root { --gold: #bf953f; --black: #050505; --electric-blue: #00f0ff; --red: #ff0033; --green: #00ff41; }
     body { background: var(--black); color: #fff; font-family: 'Orbitron', sans-serif; margin: 0; padding: 20px; min-height: 100vh; }
     .container { width: 100%; max-width: 900px; margin: 0 auto; }
     .glass-card { background: #0a0a0a; border: 1px solid #333; padding: 20px; margin-bottom: 20px; }
@@ -15,7 +15,10 @@
     .lead-item { border: 1px solid #444; padding: 15px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
     .stat-box { text-align: center; }
     .glow-green { box-shadow: 0 0 15px var(--green); border-color: var(--green); }
-    .pitch-btn { padding: 10px 15px; background: var(--electric-blue); border: none; font-weight: bold; cursor: pointer; }
+    /* Navigation Link as Button */
+    .pitch-btn { padding: 10px 15px; background: var(--electric-blue); color: #000; text-decoration: none; font-weight: bold; font-size: 14px; }
+    /* Delete Button */
+    .del-btn { padding: 10px 15px; background: var(--red); border: none; color: white; font-weight: bold; cursor: pointer; margin-left: 10px; }
   </style>
 </head>
 <body>
@@ -24,7 +27,6 @@
     <h2>Sovereign Agent Portal</h2>
     <div id="agentInfo" style="text-align:center; color: var(--electric-blue); margin-bottom: 20px;">Not Registered</div>
     
-    <!-- Stats Row -->
     <div class="glass-card" style="display: flex; justify-content: space-around;">
         <div class="stat-box"><small>SALES</small><div id="day-sales" style="font-size: 1.5rem; color: var(--gold);">0</div></div>
         <div class="stat-box"><small>INCOME</small><div id="day-income" style="font-size: 1.5rem; color: var(--green);">R0.00</div></div>
@@ -48,7 +50,7 @@
 
     function registerAsAgent() {
         if (!localStorage.getItem("KYC_Verified_Hash")) {
-            alert("Verification error: You must complete the identity registration in your KYC app first.");
+            alert("Verification required: KYC_Verified_Hash missing.");
             return;
         }
         const agentUUID = `TIF_AGENT_${Date.now()}`;
@@ -79,7 +81,8 @@
         
         ledger.leads.forEach((lead, index) => {
             const isPaid = lead.status === 'PAID';
-            const url = `https://wa.me/${lead.phone}?text=${encodeURIComponent("Hi " + lead.business + ", " + pitchText)}`;
+            // Using a standard href link ensures the mobile OS triggers the app properly
+            const waUrl = `https://wa.me/${lead.phone}?text=${encodeURIComponent("Hi " + lead.business + ", " + pitchText)}`;
             
             list.innerHTML += `
                 <div class="lead-item ${isPaid ? 'glow-green' : ''}">
@@ -88,8 +91,8 @@
                         <small>Status: ${lead.status}</small>
                     </div>
                     <div style="display: flex; align-items: center;">
-                        <button class="pitch-btn" onclick="window.open('${url}', '_blank')">💬 PITCH</button>
-                        <input type="checkbox" onchange="removeLead(${index})" style="width: 25px; height: 25px; margin-left: 10px;">
+                        <a href="${waUrl}" target="_blank" class="pitch-btn">💬 PITCH</a>
+                        <button class="del-btn" onclick="removeLead(${index})">X</button>
                     </div>
                 </div>`;
         });
@@ -104,12 +107,10 @@
     }
 
     function removeLead(index) {
-        if(confirm("Remove this lead from your pipeline?")) {
-            const ledger = JSON.parse(localStorage.getItem('tiffy_agent_ledger'));
-            ledger.leads.splice(index, 1);
-            localStorage.setItem('tiffy_agent_ledger', JSON.stringify(ledger));
-            renderLeads();
-        }
+        const ledger = JSON.parse(localStorage.getItem('tiffy_agent_ledger'));
+        ledger.leads.splice(index, 1);
+        localStorage.setItem('tiffy_agent_ledger', JSON.stringify(ledger));
+        renderLeads();
     }
 
     window.onload = () => {
