@@ -15,6 +15,7 @@
     .lead-item { border: 1px solid #444; padding: 15px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
     .stat-box { text-align: center; }
     .glow-green { box-shadow: 0 0 15px var(--green); border-color: var(--green); }
+    .pitch-btn { padding: 10px 15px; background: var(--electric-blue); border: none; font-weight: bold; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -34,7 +35,7 @@
     <div id="lead-capture" class="glass-card" style="display:none;">
         <h3>Capture New Lead</h3>
         <input type="text" id="businessName" placeholder="Business Name">
-        <input type="text" id="phoneInput" placeholder="WhatsApp Number">
+        <input type="text" id="phoneInput" placeholder="WhatsApp Number (e.g. 2782...)">
         <button onclick="captureNewLead()" style="background: var(--electric-blue);">INITIATE PITCH</button>
     </div>
 
@@ -47,7 +48,7 @@
 
     function registerAsAgent() {
         if (!localStorage.getItem("KYC_Verified_Hash")) {
-            alert("Verification required: KYC_Verified_Hash not found in system.");
+            alert("Verification error: You must complete the identity registration in your KYC app first.");
             return;
         }
         const agentUUID = `TIF_AGENT_${Date.now()}`;
@@ -58,10 +59,14 @@
     function captureNewLead() {
         const name = document.getElementById('businessName').value;
         const phone = document.getElementById('phoneInput').value;
-        if (!name) return;
+        if (!name || !phone) { alert("Please enter business name and phone."); return; }
+        
         const ledger = JSON.parse(localStorage.getItem('tiffy_agent_ledger'));
         ledger.leads.push({ business: name, phone: phone, status: "PENDING_PAY", timestamp: new Date().toISOString() });
         localStorage.setItem('tiffy_agent_ledger', JSON.stringify(ledger));
+        
+        document.getElementById('businessName').value = '';
+        document.getElementById('phoneInput').value = '';
         renderLeads();
     }
 
@@ -74,15 +79,17 @@
         
         ledger.leads.forEach((lead, index) => {
             const isPaid = lead.status === 'PAID';
+            const url = `https://wa.me/${lead.phone}?text=${encodeURIComponent("Hi " + lead.business + ", " + pitchText)}`;
+            
             list.innerHTML += `
                 <div class="lead-item ${isPaid ? 'glow-green' : ''}">
                     <div>
                         <strong>${lead.business}</strong><br>
                         <small>Status: ${lead.status}</small>
                     </div>
-                    <div>
-                        <a href="https://wa.me/${lead.phone}?text=${encodeURIComponent("Hi " + lead.business + ", " + pitchText)}" target="_blank" style="color: var(--electric-blue); text-decoration: none;">💬 PITCH</a>
-                        <input type="checkbox" onchange="removeLead(${index})" style="width: 20px; margin-left: 10px;">
+                    <div style="display: flex; align-items: center;">
+                        <button class="pitch-btn" onclick="window.open('${url}', '_blank')">💬 PITCH</button>
+                        <input type="checkbox" onchange="removeLead(${index})" style="width: 25px; height: 25px; margin-left: 10px;">
                     </div>
                 </div>`;
         });
@@ -97,10 +104,12 @@
     }
 
     function removeLead(index) {
-        const ledger = JSON.parse(localStorage.getItem('tiffy_agent_ledger'));
-        ledger.leads.splice(index, 1);
-        localStorage.setItem('tiffy_agent_ledger', JSON.stringify(ledger));
-        renderLeads();
+        if(confirm("Remove this lead from your pipeline?")) {
+            const ledger = JSON.parse(localStorage.getItem('tiffy_agent_ledger'));
+            ledger.leads.splice(index, 1);
+            localStorage.setItem('tiffy_agent_ledger', JSON.stringify(ledger));
+            renderLeads();
+        }
     }
 
     window.onload = () => {
