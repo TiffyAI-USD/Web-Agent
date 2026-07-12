@@ -15,6 +15,7 @@
     .lead-item { border: 1px solid #444; padding: 15px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
     .stat-box { text-align: center; }
     .glow-green { box-shadow: 0 0 15px var(--green); border-color: var(--green); }
+    .kyc-btn { background: var(--electric-blue); color: #000; margin-top: 10px; }
     .pitch-btn { padding: 10px 15px; background: var(--electric-blue); color: #000; text-decoration: none; font-weight: bold; font-size: 14px; }
     .del-btn { padding: 10px 15px; background: var(--red); border: none; color: white; font-weight: bold; cursor: pointer; margin-left: 10px; }
   </style>
@@ -30,7 +31,9 @@
         <div class="stat-box"><small>INCOME</small><div id="day-income" style="font-size: 1.5rem; color: var(--green);">$0.00</div></div>
     </div>
 
-    <button id="register-btn" onclick="registerAsAgent()">ACTIVATE SALES AGENT STATUS</button>
+    <div id="registration-area">
+        <button id="register-btn" onclick="registerAsAgent()">ACTIVATE SALES AGENT STATUS</button>
+    </div>
 
     <div id="lead-capture" class="glass-card" style="display:none;">
         <h3>Capture New Lead</h3>
@@ -44,11 +47,14 @@
 </div>
 
 <script>
+    const kycLink = "./kyc-portal.html"; // Replace with your actual KYC file path
     const pitchText = `The "Tiffyverse" Activation Pitch\n\nYour activation secures your Sovereign Business Suite for just $10/month.\n\nYour activation instantly secures:\n1. Sovereign Bank: $10 Opening Capital credited back to you immediately.\n2. AI Store Builder: A fully automated retail engine.\n3. Marketplace Control Panel: Total administrative authority.`;
 
     function registerAsAgent() {
         if (!localStorage.getItem("KYC_Verified_Hash")) {
-            alert("Verification required: KYC_Verified_Hash missing.");
+            const regArea = document.getElementById('registration-area');
+            regArea.innerHTML = `<p style="color:var(--red); text-align:center;">KYC Verification Required</p>
+                                 <button class="kyc-btn" onclick="window.location.href='${kycLink}'">COMPLETE KYC VERIFICATION</button>`;
             return;
         }
         const agentUUID = `TIF_AGENT_${Date.now()}`;
@@ -100,7 +106,6 @@
         const today = new Date().toLocaleDateString();
         const salesToday = ledger.leads.filter(l => l.status === 'PAID' && new Date(l.timestamp).toLocaleDateString() === today);
         document.getElementById('day-sales').innerText = salesToday.length;
-        // $5 commission per sale
         document.getElementById('day-income').innerText = `$${(salesToday.length * 5).toFixed(2)}`;
     }
 
@@ -114,7 +119,7 @@
     window.onload = () => {
         const ledger = localStorage.getItem('tiffy_agent_ledger');
         if (ledger) {
-            document.getElementById('register-btn').style.display = 'none';
+            document.getElementById('registration-area').style.display = 'none';
             document.getElementById('lead-capture').style.display = 'block';
             const data = JSON.parse(ledger);
             document.getElementById('agentInfo').innerText = `AGENT ID: ${data.profile.agentID}`;
