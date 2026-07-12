@@ -5,18 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Tiffyverse | Sovereign Agent</title>
   <style>
-    :root { --gold: #bf953f; --black: #050505; --electric-blue: #00f0ff; --red: #ff0033; --green: #00ff41; }
+    :root { 
+        --gold-gradient: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+        --black: #050505; 
+        --electric-blue: #00f0ff; 
+        --red: #ff0033; 
+        --green: #00ff41; 
+    }
     body { background: var(--black); color: #fff; font-family: 'Orbitron', sans-serif; margin: 0; padding: 20px; min-height: 100vh; }
     .container { width: 100%; max-width: 900px; margin: 0 auto; }
     .glass-card { background: #0a0a0a; border: 1px solid #333; padding: 20px; margin-bottom: 20px; }
-    h2 { color: var(--gold); text-align: center; letter-spacing: 4px; text-transform: uppercase; }
-    input { width: 100%; padding: 15px; margin: 10px 0; background: #111; border: 1px solid #444; color: #fff; box-sizing: border-box; }
-    button { width: 100%; padding: 20px; background: linear-gradient(135deg, #bf953f, #b38728); border: none; color: #000; font-weight: 900; cursor: pointer; text-transform: uppercase; }
+    h2 { color: #fff; text-align: center; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 30px; }
+    input { width: 100%; padding: 20px; margin: 10px 0; background: #111; border: 1px solid #444; color: #fff; box-sizing: border-box; }
+    
+    /* Unified Gold Button Style */
+    .gold-btn { 
+        width: 100%; padding: 20px; 
+        background: var(--gold-gradient); 
+        border: none; color: #000; font-weight: 900; 
+        cursor: pointer; text-transform: uppercase; text-decoration: none;
+        display: inline-block; text-align: center; transition: transform 0.2s;
+    }
+    .gold-btn:hover { transform: scale(1.01); }
+    
     .lead-item { border: 1px solid #444; padding: 15px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
     .stat-box { text-align: center; }
     .glow-green { box-shadow: 0 0 15px var(--green); border-color: var(--green); }
-    .kyc-btn { background: var(--electric-blue); color: #000; margin-top: 10px; }
-    .pitch-btn { padding: 10px 15px; background: var(--electric-blue); color: #000; text-decoration: none; font-weight: bold; font-size: 14px; }
+    
+    .pitch-btn { padding: 10px 15px; color: #000; font-weight: bold; font-size: 14px; }
     .del-btn { padding: 10px 15px; background: var(--red); border: none; color: white; font-weight: bold; cursor: pointer; margin-left: 10px; }
   </style>
 </head>
@@ -27,19 +43,19 @@
     <div id="agentInfo" style="text-align:center; color: var(--electric-blue); margin-bottom: 20px;">Not Registered</div>
     
     <div class="glass-card" style="display: flex; justify-content: space-around;">
-        <div class="stat-box"><small>SALES</small><div id="day-sales" style="font-size: 1.5rem; color: var(--gold);">0</div></div>
+        <div class="stat-box"><small>SALES</small><div id="day-sales" style="font-size: 1.5rem; color: #bf953f;">0</div></div>
         <div class="stat-box"><small>INCOME</small><div id="day-income" style="font-size: 1.5rem; color: var(--green);">$0.00</div></div>
     </div>
 
     <div id="registration-area">
-        <button id="register-btn" onclick="registerAsAgent()">ACTIVATE SALES AGENT STATUS</button>
+        <button class="gold-btn" id="register-btn" onclick="registerAsAgent()">ACTIVATE SALES AGENT STATUS</button>
     </div>
 
     <div id="lead-capture" class="glass-card" style="display:none;">
         <h3>Capture New Lead</h3>
         <input type="text" id="businessName" placeholder="Business Name">
         <input type="text" id="phoneInput" placeholder="WhatsApp Number (e.g. 2782...)">
-        <button onclick="captureNewLead()" style="background: var(--electric-blue);">INITIATE PITCH</button>
+        <button class="gold-btn" onclick="captureNewLead()">INITIATE PITCH</button>
     </div>
 
     <h3>Active Pipeline</h3>
@@ -54,7 +70,7 @@
         if (!localStorage.getItem("KYC_Verified_Hash")) {
             const regArea = document.getElementById('registration-area');
             regArea.innerHTML = `<p style="color:var(--red); text-align:center;">KYC Verification Required</p>
-                                 <button class="kyc-btn" onclick="window.location.href='${kycLink}'">COMPLETE KYC VERIFICATION</button>`;
+                                 <a href="${kycLink}" class="gold-btn">COMPLETE KYC VERIFICATION</a>`;
             return;
         }
         const agentUUID = `TIF_AGENT_${Date.now()}`;
@@ -94,7 +110,7 @@
                         <small>Status: ${lead.status}</small>
                     </div>
                     <div style="display: flex; align-items: center;">
-                        <a href="${waUrl}" target="_blank" class="pitch-btn">💬 PITCH</a>
+                        <a href="${waUrl}" target="_blank" class="gold-btn pitch-btn">💬 PITCH</a>
                         <button class="del-btn" onclick="removeLead(${index})">X</button>
                     </div>
                 </div>`;
