@@ -46,8 +46,8 @@
     <div id="agentInfo" style="text-align:center; color: var(--electric-blue); margin-bottom: 20px;">Not Registered</div>
     
     <div class="glass-card" style="display: flex; justify-content: space-around;">
-        <div class="stat-box"><small>SALES</small><div id="day-sales" style="font-size: 1.5rem; color: #bf953f;">0</div></div>
-        <div class="stat-box"><small>INCOME</small><div id="day-income" style="font-size: 1.5rem; color: var(--green);">$0.00</div></div>
+        <div class="stat-box"><small>TOTAL SALES</small><div id="day-sales" style="font-size: 1.5rem; color: #bf953f;">0</div></div>
+        <div class="stat-box"><small>TOTAL INCOME</small><div id="day-income" style="font-size: 1.5rem; color: var(--green);">$0.00</div></div>
     </div>
 
     <div id="registration-area">
@@ -94,7 +94,7 @@ https://ln.run/TcQll `;
         const phone = document.getElementById('phoneInput').value.trim();
         if (!name || !phone) { alert("Please enter business name and phone."); return; }
         
-        const ledger = JSON.parse(localStorage.getItem('tiffy_agent_ledger'));
+        const ledger = JSON.parse(localStorage.getItem('tiffy_agent_ledger') || '{"leads":[]}');
         ledger.leads.push({ 
             business: name, 
             phone: phone, 
@@ -109,7 +109,7 @@ https://ln.run/TcQll `;
     }
 
     function verifyAndPayPartner(index) {
-        const ledger = JSON.parse(localStorage.getItem('tiffy_agent_ledger'));
+        const ledger = JSON.parse(localStorage.getItem('tiffy_agent_ledger') || '{"leads":[]}');
         const lead = ledger.leads[index];
         
         if (lead.status === 'PAID') {
@@ -117,7 +117,7 @@ https://ln.run/TcQll `;
             return;
         }
 
-        const confirmPay = confirm(`Verify KYC and pay partner commission for "${lead.business}"? This will credit $5 to your daily ledger income.`);
+        const confirmPay = confirm(`Verify KYC and pay partner commission for "${lead.business}"? This will credit $5 to your ledger income.`);
         if (!confirmPay) return;
 
         // Update ledger status to PAID
@@ -127,7 +127,7 @@ https://ln.run/TcQll `;
         // Update local agent ledger storage
         localStorage.setItem('tiffy_agent_ledger', JSON.stringify(ledger));
 
-        // Sync or increment earnings/nitro balance in the broader user profile if applicable
+        // Sync or increment earnings/nitro balance in the broader user profile
         let currentNitro = parseFloat(localStorage.getItem("TUSD_Nitro_Storage") || "0");
         currentNitro += 5.00;
         localStorage.setItem("TUSD_Nitro_Storage", currentNitro.toFixed(2));
@@ -164,10 +164,9 @@ https://ln.run/TcQll `;
     }
 
     function updateStats(ledger) {
-        const today = new Date().toLocaleDateString();
-        const salesToday = ledger.leads.filter(l => l.status === 'PAID' && new Date(l.timestamp || l.verifiedAt).toLocaleDateString() === today);
-        document.getElementById('day-sales').innerText = salesToday.length;
-        document.getElementById('day-income').innerText = `$${(salesToday.length * 5).toFixed(2)}`;
+        const paidSales = ledger.leads.filter(l => l.status === 'PAID');
+        document.getElementById('day-sales').innerText = paidSales.length;
+        document.getElementById('day-income').innerText = `$${(paidSales.length * 5).toFixed(2)}`;
     }
 
     function removeLead(index) {
