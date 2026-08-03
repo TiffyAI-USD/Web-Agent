@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Tiffyverse | Sovereign Agent</title>
+  <title>Tiffyverse | Sovereign Agent Portal</title>
   <style>
     :root { 
         --gold-gradient: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
@@ -15,8 +15,8 @@
     body { background: var(--black); color: #fff; font-family: 'Orbitron', sans-serif; margin: 0; padding: 20px; min-height: 100vh; }
     .container { width: 100%; max-width: 900px; margin: 0 auto; }
     .glass-card { background: #0a0a0a; border: 1px solid #333; padding: 20px; margin-bottom: 20px; }
-    h2 { color: #fff; text-align: center; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 30px; }
-    input { width: 100%; padding: 20px; margin: 10px 0; background: #111; border: 1px solid #444; color: #fff; box-sizing: border-box; }
+    h2, h3 { color: #fff; text-align: center; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 30px; }
+    input { width: 100%; padding: 20px; margin: 10px 0; background: #111; border: 1px solid #444; color: #fff; box-sizing: border-box; font-family: 'Orbitron', sans-serif; font-size: 16px; }
     
     /* Unified Gold Button Style */
     .gold-btn { 
@@ -25,15 +25,18 @@
         border: none; color: #000; font-weight: 900; 
         cursor: pointer; text-transform: uppercase; text-decoration: none;
         display: inline-block; text-align: center; transition: transform 0.2s;
+        box-sizing: border-box; font-family: 'Orbitron', sans-serif; font-size: 16px;
     }
     .gold-btn:hover { transform: scale(1.01); }
     
-    .lead-item { border: 1px solid #444; padding: 15px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .lead-item { border: 1px solid #444; padding: 15px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; background: #111; }
     .stat-box { text-align: center; }
     .glow-green { box-shadow: 0 0 15px var(--green); border-color: var(--green); }
     
-    .pitch-btn { padding: 10px 15px; color: #000; font-weight: bold; font-size: 14px; }
-    .del-btn { padding: 10px 15px; background: var(--red); border: none; color: white; font-weight: bold; cursor: pointer; margin-left: 10px; }
+    .action-group { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+    .pitch-btn { padding: 10px 15px; color: #000; font-weight: bold; font-size: 13px; width: auto; margin: 0; }
+    .pay-btn { padding: 10px 15px; background: var(--green); border: none; color: #000; font-weight: bold; cursor: pointer; text-transform: uppercase; font-family: 'Orbitron', sans-serif; font-size: 13px; }
+    .del-btn { padding: 10px 15px; background: var(--red); border: none; color: white; font-weight: bold; cursor: pointer; font-family: 'Orbitron', sans-serif; font-size: 13px; }
   </style>
 </head>
 <body>
@@ -87,16 +90,49 @@ https://ln.run/TcQll `;
     }
 
     function captureNewLead() {
-        const name = document.getElementById('businessName').value;
-        const phone = document.getElementById('phoneInput').value;
+        const name = document.getElementById('businessName').value.trim();
+        const phone = document.getElementById('phoneInput').value.trim();
         if (!name || !phone) { alert("Please enter business name and phone."); return; }
         
         const ledger = JSON.parse(localStorage.getItem('tiffy_agent_ledger'));
-        ledger.leads.push({ business: name, phone: phone, status: "PENDING_PAY", timestamp: new Date().toISOString() });
+        ledger.leads.push({ 
+            business: name, 
+            phone: phone, 
+            status: "PENDING_PAY", 
+            timestamp: new Date().toISOString() 
+        });
         localStorage.setItem('tiffy_agent_ledger', JSON.stringify(ledger));
         
         document.getElementById('businessName').value = '';
         document.getElementById('phoneInput').value = '';
+        renderLeads();
+    }
+
+    function verifyAndPayPartner(index) {
+        const ledger = JSON.parse(localStorage.getItem('tiffy_agent_ledger'));
+        const lead = ledger.leads[index];
+        
+        if (lead.status === 'PAID') {
+            alert("Partner KYC has already been verified and commission logged.");
+            return;
+        }
+
+        const confirmPay = confirm(`Verify KYC and pay partner commission for "${lead.business}"? This will credit $5 to your daily ledger income.`);
+        if (!confirmPay) return;
+
+        // Update ledger status to PAID
+        lead.status = 'PAID';
+        lead.verifiedAt = new Date().toISOString();
+        
+        // Update local agent ledger storage
+        localStorage.setItem('tiffy_agent_ledger', JSON.stringify(ledger));
+
+        // Sync or increment earnings/nitro balance in the broader user profile if applicable
+        let currentNitro = parseFloat(localStorage.getItem("TUSD_Nitro_Storage") || "0");
+        currentNitro += 5.00;
+        localStorage.setItem("TUSD_Nitro_Storage", currentNitro.toFixed(2));
+
+        alert(`KYC Verified! Partner commission successfully credited to your agent ledger and TUSD storage.`);
         renderLeads();
     }
 
@@ -117,8 +153,9 @@ https://ln.run/TcQll `;
                         <strong>${lead.business}</strong><br>
                         <small>Status: ${lead.status}</small>
                     </div>
-                    <div style="display: flex; align-items: center;">
+                    <div class="action-group">
                         <a href="${waUrl}" target="_blank" class="gold-btn pitch-btn">💬 PITCH</a>
+                        ${!isPaid ? `<button class="pay-btn" onclick="verifyAndPayPartner(${index})">✓ VERIFY KYC & PAY</button>` : ''}
                         <button class="del-btn" onclick="removeLead(${index})">X</button>
                     </div>
                 </div>`;
@@ -128,7 +165,7 @@ https://ln.run/TcQll `;
 
     function updateStats(ledger) {
         const today = new Date().toLocaleDateString();
-        const salesToday = ledger.leads.filter(l => l.status === 'PAID' && new Date(l.timestamp).toLocaleDateString() === today);
+        const salesToday = ledger.leads.filter(l => l.status === 'PAID' && new Date(l.timestamp || l.verifiedAt).toLocaleDateString() === today);
         document.getElementById('day-sales').innerText = salesToday.length;
         document.getElementById('day-income').innerText = `$${(salesToday.length * 5).toFixed(2)}`;
     }
